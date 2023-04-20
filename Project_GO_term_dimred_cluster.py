@@ -6,19 +6,30 @@ import random
 import pickle
 from sklearn.cluster import KMeans
 
-# Load the word_embeddings dictionary from the file
-with open('word_embeddings_mask.pkl', 'rb') as f:
-    word_embeddings = pickle.load(f)
-
-# Prepare data for t-SNE
-words = list(word_embeddings.keys())
-embeddings = np.array([word_embeddings[word] for word in words])
+# # Load the word_embeddings dictionary from the file
+# with open('term_embeddings_bert.pkl', 'rb') as f:
+#     word_embeddings = pickle.load(f)
+#
+# # Prepare data for t-SNE
+# words = list(word_embeddings.keys())
+# embeddings = np.array([word_embeddings[word] for word in words])
 
 # # Select a smaller number of words (e.g., 300)
 # num_words = 300
 # check_words = random.sample(words, num_words)
 #
 # embeddings = np.array([word_embeddings[word] for word in check_words])
+
+# Load the term_embeddings dictionary from the file
+with open('term_embeddings_bert.pkl', 'rb') as f:
+    term_embeddings = pickle.load(f)
+
+# Prepare data for t-SNE
+words = list(term_embeddings.keys())
+embeddings = np.array([term_embeddings[term] for term in words])
+
+# Flatten the embeddings
+embeddings = embeddings.reshape(embeddings.shape[0], -1)
 
 # Apply t-SNE
 tsne = TSNE(n_components=2, random_state=42)
@@ -91,7 +102,7 @@ for cluster_id in range(num_clusters):
     cluster_representatives[cluster_id] = cluster_word
 
 # Select 50 random words
-selected_words = random.sample(words, 150)
+selected_words = random.sample(words, 50)
 selected_indices = [words.index(word) for word in selected_words]
 
 # Plot the 2D embeddings for all words
@@ -111,7 +122,7 @@ for cluster_id, cluster_word in cluster_representatives.items():
                  ha='center', va='center', fontsize=12, color='red',
                  bbox=dict(boxstyle='round,pad=0.5', edgecolor='red', facecolor='white', alpha=0.7))
 
-# plt.show()
+plt.show()
 
 # Save data to a file
 data = {
