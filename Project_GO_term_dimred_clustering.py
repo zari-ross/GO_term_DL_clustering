@@ -7,7 +7,7 @@ import pickle
 from sklearn.cluster import KMeans
 
 # Load the word_embeddings dictionary from the file
-with open('word_embeddings_word2vec.pkl', 'rb') as f:
+with open('word_embeddings_mask.pkl', 'rb') as f:
     word_embeddings = pickle.load(f)
 
 # Prepare data for t-SNE
@@ -51,20 +51,41 @@ kmeans.cluster_centers_ = kmeans.cluster_centers_.astype(np.float64)
 with open('kmeans_model.pkl', 'wb') as f:
     pickle.dump(kmeans, f)
 
-# Find the representative word for each cluster
+# # Find the representative word for each cluster
+# cluster_representatives = {}
+# for cluster_id in range(num_clusters):
+#     # Get the mean (centroid) of the 2D embeddings for the current cluster
+#     cluster_centroid = np.mean(embeddings_2d[clusters == cluster_id], axis=0)
+#
+#     # Calculate the Euclidean distance between the centroid and all points in the cluster
+#     distances = np.linalg.norm(embeddings_2d[clusters == cluster_id] - cluster_centroid, axis=1)
+#
+#     # Find the index of the point with the minimum distance
+#     closest_point_index = np.argmin(distances)
+#
+#     # Get the word corresponding to the closest point
+#     cluster_word = words[np.where(clusters == cluster_id)[0][closest_point_index]]
+#
+#     # Save the representative word for the current cluster
+#     cluster_representatives[cluster_id] = cluster_word
+
+# Find the representative word for each cluster based on frequency
 cluster_representatives = {}
 for cluster_id in range(num_clusters):
-    # Get the mean (centroid) of the 2D embeddings for the current cluster
-    cluster_centroid = np.mean(embeddings_2d[clusters == cluster_id], axis=0)
+    cluster_indices = np.where(clusters == cluster_id)[0]
 
-    # Calculate the Euclidean distance between the centroid and all points in the cluster
-    distances = np.linalg.norm(embeddings_2d[clusters == cluster_id] - cluster_centroid, axis=1)
+    # Calculate the average distance for each word to all other points in the cluster
+    avg_distances = []
+    for idx in cluster_indices:
+        word_distances = np.linalg.norm(embeddings_2d[cluster_indices] - embeddings_2d[idx], axis=1)
+        avg_distance = np.mean(word_distances)
+        avg_distances.append(avg_distance)
 
-    # Find the index of the point with the minimum distance
-    closest_point_index = np.argmin(distances)
+    # Find the index of the word with the lowest average distance
+    best_word_index = np.argmin(avg_distances)
 
-    # Get the word corresponding to the closest point
-    cluster_word = words[np.where(clusters == cluster_id)[0][closest_point_index]]
+    # Get the word corresponding to the lowest average distance
+    cluster_word = words[cluster_indices[best_word_index]]
 
     # Save the representative word for the current cluster
     cluster_representatives[cluster_id] = cluster_word
