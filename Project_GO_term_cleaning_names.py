@@ -7,7 +7,7 @@ file_path = "go-basic.obo"
 ontology = pronto.Ontology(file_path)
 
 # Print some information about the ontology
-print(f"Number of terms: {len(ontology)}")
+# print(f"Number of terms: {len(ontology)}")
 
 # # Access a specific term using its ID
 # term_id = "GO:0008150"  # Replace with your term ID
@@ -36,7 +36,7 @@ for term_id, term in ontology.items():
             all_names.append(str(name))
 
 # Check the result
-print(all_names[:5])  # Print the first 5 names
+# print(all_names[:5])  # Print the first 5 names
 
 filtered_names = [name for name in all_names if "obsolete" not in name.lower() and "unknown" not in name.lower() and "uncharacterized" not in name.lower()]
 
