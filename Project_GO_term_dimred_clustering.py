@@ -4,6 +4,7 @@ from sklearn.manifold import TSNE
 import umap
 import random
 import pickle
+from sklearn.cluster import KMeans
 
 # Load the word_embeddings dictionary from the file
 with open('word_embeddings_word2vec.pkl', 'rb') as f:
@@ -27,8 +28,6 @@ embeddings_2d = tsne.fit_transform(embeddings)
 # reducer = umap.UMAP(n_components=2, random_state=1)
 # embeddings_2d = reducer.fit_transform(embeddings)
 
-from sklearn.cluster import KMeans
-
 sse = []
 num_clusters_range = range(1, 11)
 for k in num_clusters_range:
@@ -41,8 +40,6 @@ plt.xlabel('Number of clusters')
 plt.ylabel('SSE')
 plt.title('Elbow Method')
 plt.show()
-
-from sklearn.cluster import KMeans
 
 # Choose the number of clusters
 num_clusters = 20
