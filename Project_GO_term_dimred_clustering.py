@@ -46,6 +46,10 @@ num_clusters = 20
 kmeans = KMeans(n_clusters=num_clusters)
 clusters = kmeans.fit_predict(embeddings_2d)
 
+# Save the kmeans model to a file
+with open('kmeans_model.pkl', 'wb') as f:
+    pickle.dump(kmeans, f)
+
 # Find the representative word for each cluster
 cluster_representatives = {}
 for cluster_id in range(num_clusters):
