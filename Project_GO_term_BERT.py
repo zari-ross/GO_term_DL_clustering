@@ -3,7 +3,7 @@ import json
 import tensorflow as tf
 from transformers import BertTokenizer, TFBertModel
 
-input_file = "cleaned_names.json"
+input_file = "cleaned_names_MF_rat.json"
 
 with open(input_file, "r") as f:
     cleaned_terms = json.load(f)
