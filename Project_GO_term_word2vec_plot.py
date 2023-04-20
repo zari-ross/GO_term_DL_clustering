@@ -6,7 +6,7 @@ import random
 import pickle
 
 # Load the word_embeddings dictionary from the file
-with open('word_embeddings.pkl', 'rb') as f:
+with open('word_embeddings_mask.pkl', 'rb') as f:
     word_embeddings = pickle.load(f)
 
 # Prepare data for t-SNE
@@ -27,20 +27,20 @@ embeddings_2d = tsne.fit_transform(embeddings)
 # reducer = umap.UMAP(n_components=2, random_state=1)
 # embeddings_2d = reducer.fit_transform(embeddings)
 
-# from sklearn.cluster import KMeans
-#
-# sse = []
-# num_clusters_range = range(1, 11)
-# for k in num_clusters_range:
-#     kmeans = KMeans(n_clusters=k)
-#     kmeans.fit(embeddings_2d)
-#     sse.append(kmeans.inertia_)
-#
-# plt.plot(num_clusters_range, sse, marker='o')
-# plt.xlabel('Number of clusters')
-# plt.ylabel('SSE')
-# plt.title('Elbow Method')
-# plt.show()
+from sklearn.cluster import KMeans
+
+sse = []
+num_clusters_range = range(1, 11)
+for k in num_clusters_range:
+    kmeans = KMeans(n_clusters=k)
+    kmeans.fit(embeddings_2d)
+    sse.append(kmeans.inertia_)
+
+plt.plot(num_clusters_range, sse, marker='o')
+plt.xlabel('Number of clusters')
+plt.ylabel('SSE')
+plt.title('Elbow Method')
+plt.show()
 
 from sklearn.cluster import KMeans
 
