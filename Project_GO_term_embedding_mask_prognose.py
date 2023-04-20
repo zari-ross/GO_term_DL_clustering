@@ -13,6 +13,7 @@ import matplotlib.pyplot as plt
 from matplotlib import animation
 from matplotlib.animation import FuncAnimation
 import matplotlib as mpl
+import pickle
 
 vectorizer = tf.keras.layers.TextVectorization(output_sequence_length=7) #max_tokens=Inf,
 
@@ -46,7 +47,7 @@ def generator(text, batch_size=1):
 # Describe model architecture
 model = tf.keras.models.Sequential()
 
-model.add(tf.keras.layers.Embedding(vectorizer.vocabulary_size()+1, 3))
+model.add(tf.keras.layers.Embedding(vectorizer.vocabulary_size()+1, 50))
 
 model.add(tf.keras.layers.LSTM(50, return_sequences=False, activation='sigmoid'))
 model.add(tf.keras.layers.Dense(vectorizer.vocabulary_size(), activation='softmax'))
@@ -58,34 +59,44 @@ model.compile(optimizer='adam', loss='sparse_categorical_crossentropy',
 
 lr_reduce = tf.keras.callbacks.ReduceLROnPlateau(monitor='loss', patience=500, min_lr=1e-6)
 
-# Load the weights from a file when available
-weights_file = 'GO_term_weights.h5'
-if os.path.exists(weights_file):
-    model.load_weights(weights_file)
-
 # Create a CSVLogger callback and specify the filename for the log file
 csv_logger = CSVLogger('GO_term_training.log', append=True)
 
 model.fit(generator(cleaned_terms, batch_size=50), steps_per_epoch=1, epochs=3000, verbose=2,
           callbacks=[lr_reduce, csv_logger])
 
-# Save the weights to a file
-model.save_weights(weights_file)
+# Save the model
+model.save("mask_go_terms.model")
 
-embed_model = tf.keras.models.Model(model.input, model.layers[0].output)
-X_embed = embed_model(vectorizer(vectorizer.get_vocabulary(
-    include_special_tokens=False)))[:, 0, :]
-# Save the embeddings
-np.save('embeddings_2d.npy', X_embed)
+# Get the weights from the Embedding layer
+embeddings = model.layers[0].get_weights()[0]
 
-# Get the names of the GO terms
-names = vectorizer.get_vocabulary(include_special_tokens=False)
+# Get the vocabulary from the vectorizer
+vocab = vectorizer.get_vocabulary()
 
-# Create a dictionary with names as keys and embeddings as values
-name_embedding_dict = {name: embedding.numpy().tolist() for name, embedding in zip(names, X_embed)}
+# Create a dictionary of word embeddings
+word_embeddings = {word: embeddings[idx] for idx, word in enumerate(vocab)}
 
-# Save the dictionary as a JSON file
-import json
+# Save the word_embeddings dictionary to a file
+with open('word_embeddings_mask.pkl', 'wb') as f:
+    pickle.dump(word_embeddings, f)
 
-with open("name_embeddings_2d.json", "w") as f:
-    json.dump(name_embedding_dict, f)
+
+# For 2 dimensional embeddings
+# embed_model = tf.keras.models.Model(model.input, model.layers[0].output)
+# X_embed = embed_model(vectorizer(vectorizer.get_vocabulary(
+#     include_special_tokens=False)))[:, 0, :]
+# # Save the embeddings
+# np.save('embeddings_2d.npy', X_embed)
+#
+# # Get the names of the GO terms
+# names = vectorizer.get_vocabulary(include_special_tokens=False)
+#
+# # Create a dictionary with names as keys and embeddings as values
+# name_embedding_dict = {name: embedding.numpy().tolist() for name, embedding in zip(names, X_embed)}
+#
+# # Save the dictionary as a JSON file
+# import json
+#
+# with open("name_embeddings_2d.json", "w") as f:
+#     json.dump(name_embedding_dict, f)
