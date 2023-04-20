@@ -100,18 +100,28 @@ experiment_word_counts = Counter(experiment_word_clusters)
 # Count the number of all words in each cluster
 all_word_counts = Counter(clusters)
 
+# Create a list to store experiment words for each cluster
+experiment_words = {cluster_id: [] for cluster_id in range(num_clusters)}
+
+# Fill the list with experiment words
+for word, cluster_id in zip(unique_words_in_cleaned_names, experiment_word_clusters):
+    experiment_words[cluster_id].append(word)
+
 # Calculate the enrichment score for each cluster
 enrichment_scores = {}
 for cluster_id in range(num_clusters):
     cluster_word = cluster_representatives[cluster_id]
     experiment_prop = experiment_word_counts[cluster_id] / len(tokenized_cleaned_names)
     all_prop = all_word_counts[cluster_id] / len(words)
-    # experiment_prop = experiment_word_counts[cluster_id]
-    # all_prop = all_word_counts[cluster_id]
     enrichment_scores[cluster_id] = {'representative': cluster_word, 'enrichment_score': experiment_prop / all_prop,
-                                     'experiment_word_counts': experiment_word_counts[cluster_id]}
+                                     'experiment_word_counts': experiment_word_counts[cluster_id],
+                                     'experiment_words': ', '.join(experiment_words[cluster_id])}
 
-print(enrichment_scores)
+# Create a DataFrame from the enrichment scores dictionary
+enrichment_scores_df = pd.DataFrame(enrichment_scores).T.reset_index().rename(columns={'index': 'cluster_id'})
+
+# Save the DataFrame to a CSV file
+enrichment_scores_df.to_csv('enrichment_scores.csv', index=False)
 
 # Plot the enrichment scores
 fig, ax = plt.subplots(figsize=(12, 8))
