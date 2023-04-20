@@ -73,18 +73,18 @@ model.fit(generator(cleaned_abstracts, batch_size=50), steps_per_epoch=1, epochs
 # Save the model
 model.save("mask_go_terms.model")
 
-# Get the weights from the Embedding layer
-embeddings = model.layers[0].get_weights()[0]
-
-# Get the vocabulary from the vectorizer
-vocab = vectorizer.get_vocabulary()
-
-# Create a dictionary of word embeddings
-word_embeddings = {word: embeddings[idx] for idx, word in enumerate(vocab)}
-
-# Save the word_embeddings dictionary to a file
-with open('word_embeddings_mask_trained_on_abstracts.pkl', 'wb') as f:
-    pickle.dump(word_embeddings, f)
+# # Get the weights from the Embedding layer
+# embeddings = model.layers[0].get_weights()[0]
+#
+# # Get the vocabulary from the vectorizer
+# vocab = vectorizer.get_vocabulary()
+#
+# # Create a dictionary of word embeddings
+# word_embeddings = {word: embeddings[idx] for idx, word in enumerate(vocab)}
+#
+# # Save the word_embeddings dictionary to a file
+# with open('word_embeddings_mask_trained_on_abstracts.pkl', 'wb') as f:
+#     pickle.dump(word_embeddings, f)
 
 
 # For 2 dimensional embeddings
