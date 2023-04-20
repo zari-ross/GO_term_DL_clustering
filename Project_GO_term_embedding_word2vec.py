@@ -31,5 +31,5 @@ word_embeddings = {word: model.wv[word] for word in model.wv.key_to_index}
 import pickle
 
 # Save the word_embeddings dictionary to a file
-with open('word_embeddings.pkl', 'wb') as f:
+with open('word_embeddings_word2vec.pkl', 'wb') as f:
     pickle.dump(word_embeddings, f)
