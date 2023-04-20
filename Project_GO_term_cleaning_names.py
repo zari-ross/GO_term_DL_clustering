@@ -77,8 +77,8 @@ def clean_name(name):
 cleaned_names = [clean_name(name) for name in filtered_names]
 
 # Check the result
-print(cleaned_names[:5])
-print(len(cleaned_names))
+# print(cleaned_names[:5])
+# print(len(cleaned_names))
 
 import json
 
