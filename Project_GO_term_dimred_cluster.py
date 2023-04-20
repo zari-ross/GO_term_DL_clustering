@@ -7,12 +7,12 @@ import pickle
 from sklearn.cluster import KMeans
 
 # # Load the word_embeddings dictionary from the file
-# with open('term_embeddings_bert.pkl', 'rb') as f:
-#     word_embeddings = pickle.load(f)
-#
-# # Prepare data for t-SNE
-# words = list(word_embeddings.keys())
-# embeddings = np.array([word_embeddings[word] for word in words])
+with open('word_embeddings_mask.pkl', 'rb') as f:
+    word_embeddings = pickle.load(f)
+
+# Prepare data for t-SNE
+words = list(word_embeddings.keys())
+embeddings = np.array([word_embeddings[word] for word in words])
 
 # # Select a smaller number of words (e.g., 300)
 # num_words = 300
@@ -20,8 +20,19 @@ from sklearn.cluster import KMeans
 #
 # embeddings = np.array([word_embeddings[word] for word in check_words])
 
+# # Load the term_embeddings dictionary from the file
+# with open('term_embeddings_bert.pkl', 'rb') as f:
+#     term_embeddings = pickle.load(f)
+#
+# # Prepare data for t-SNE
+# words = list(term_embeddings.keys())
+# embeddings = np.array([term_embeddings[term] for term in words])
+#
+# # Flatten the embeddings
+# embeddings = embeddings.reshape(embeddings.shape[0], -1)
+
 # Load the term_embeddings dictionary from the file
-with open('term_embeddings_bert.pkl', 'rb') as f:
+with open('word_embeddings_mask_MF_rat_trained_on_abstracts.pkl', 'rb') as f:
     term_embeddings = pickle.load(f)
 
 # Prepare data for t-SNE
@@ -102,7 +113,7 @@ for cluster_id in range(num_clusters):
     cluster_representatives[cluster_id] = cluster_word
 
 # Select 50 random words
-selected_words = random.sample(words, 50)
+selected_words = random.sample(words, 150)
 selected_indices = [words.index(word) for word in selected_words]
 
 # Plot the 2D embeddings for all words
