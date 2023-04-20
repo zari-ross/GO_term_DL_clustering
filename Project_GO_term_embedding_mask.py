@@ -5,6 +5,9 @@ input_file = "cleaned_names.json"
 with open(input_file, "r") as f:
     cleaned_terms = json.load(f)
 
+with open("cleaned_abstracts.json", "r") as f:
+    cleaned_abstracts = json.load(f)
+
 import tensorflow as tf
 import numpy as np
 import os
@@ -17,8 +20,8 @@ import pickle
 
 vectorizer = tf.keras.layers.TextVectorization(output_sequence_length=7) #max_tokens=Inf,
 
-vectorizer.adapt(cleaned_terms)
-
+# vectorizer.adapt(cleaned_terms)
+vectorizer.adapt(cleaned_abstracts)
 
 def generator(text, batch_size=1):
     while True:
@@ -62,7 +65,9 @@ lr_reduce = tf.keras.callbacks.ReduceLROnPlateau(monitor='loss', patience=500, m
 # Create a CSVLogger callback and specify the filename for the log file
 csv_logger = CSVLogger('GO_term_training.log', append=True)
 
-model.fit(generator(cleaned_terms, batch_size=50), steps_per_epoch=1, epochs=3000, verbose=2,
+# model.fit(generator(cleaned_terms, batch_size=50), steps_per_epoch=1, epochs=3000, verbose=2,
+#           callbacks=[lr_reduce, csv_logger])
+model.fit(generator(cleaned_abstracts, batch_size=50), steps_per_epoch=1, epochs=3000, verbose=2,
           callbacks=[lr_reduce, csv_logger])
 
 # Save the model
