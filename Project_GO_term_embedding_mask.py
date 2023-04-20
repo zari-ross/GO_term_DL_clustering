@@ -18,7 +18,7 @@ from matplotlib.animation import FuncAnimation
 import matplotlib as mpl
 import pickle
 
-vectorizer = tf.keras.layers.TextVectorization(output_sequence_length=7) #max_tokens=Inf,
+vectorizer = tf.keras.layers.TextVectorization(output_sequence_length=7)  # max_tokens=Inf,
 
 # vectorizer.adapt(cleaned_terms)
 vectorizer.adapt(cleaned_abstracts)
@@ -83,7 +83,7 @@ vocab = vectorizer.get_vocabulary()
 word_embeddings = {word: embeddings[idx] for idx, word in enumerate(vocab)}
 
 # Save the word_embeddings dictionary to a file
-with open('word_embeddings_mask.pkl', 'wb') as f:
+with open('word_embeddings_mask_trained_on_abstracts.pkl', 'wb') as f:
     pickle.dump(word_embeddings, f)
 
 
