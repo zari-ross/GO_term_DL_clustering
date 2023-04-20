@@ -6,7 +6,7 @@ import random
 import pickle
 
 # Load the word_embeddings dictionary from the file
-with open('word_embeddings_mask.pkl', 'rb') as f:
+with open('word_embeddings_word2vec.pkl', 'rb') as f:
     word_embeddings = pickle.load(f)
 
 # Prepare data for t-SNE
@@ -89,7 +89,6 @@ for cluster_id, cluster_word in cluster_representatives.items():
                  bbox=dict(boxstyle='round,pad=0.5', edgecolor='red', facecolor='white', alpha=0.7))
 
 plt.show()
-
 
 # Save data to a file
 data = {
