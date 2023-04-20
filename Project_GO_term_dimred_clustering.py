@@ -45,6 +45,7 @@ plt.show()
 num_clusters = 20
 kmeans = KMeans(n_clusters=num_clusters)
 clusters = kmeans.fit_predict(embeddings_2d)
+kmeans.cluster_centers_ = kmeans.cluster_centers_.astype(np.float64)
 
 # Save the kmeans model to a file
 with open('kmeans_model.pkl', 'wb') as f:
@@ -89,7 +90,7 @@ for cluster_id, cluster_word in cluster_representatives.items():
                  ha='center', va='center', fontsize=12, color='red',
                  bbox=dict(boxstyle='round,pad=0.5', edgecolor='red', facecolor='white', alpha=0.7))
 
-plt.show()
+# plt.show()
 
 # Save data to a file
 data = {
