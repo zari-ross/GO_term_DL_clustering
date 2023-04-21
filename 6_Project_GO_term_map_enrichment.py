@@ -24,18 +24,18 @@ with open('rat_cleaned_terms_with_embeddings_clusters_and_tsne.json', 'r') as f:
 # Extract the t-SNE embeddings
 embeddings_2d = np.array([term_embeddings[term]['embedding_2d_tsne'] for term in term_embeddings])
 go_ids = list(term_embeddings.keys())
+go_id_to_name = {go_id: term_data['cleaned_name'] for go_id, term_data in term_embeddings.items()}
 
 # Extract clusters
 clusters = [term_embeddings[term]['cluster'] for term in term_embeddings]
 
-# Create a reverse mapping from cluster ID to the corresponding term ID
-cluster_to_term_id = {}
-for term_id, cluster in zip(term_embeddings.keys(), clusters):
-    cluster_to_term_id[int(cluster)] = term_id
-
 # Extract cluster_representatives
-cluster_representatives = {i: term_embeddings[cluster_to_term_id[i]]['representative'] for i in range(num_clusters)}
-print(cluster_representatives)
+cluster_representatives = {}
+for term_id, term_data in term_embeddings.items():
+    cluster_id = term_data['cluster']
+    if 'representative' in term_data:
+        cluster_representatives[cluster_id] = term_data['representative']
+
 
 filename = "GO_terms_Example1.txt"
 
@@ -104,6 +104,7 @@ cbar = plt.colorbar(cm.ScalarMappable(norm=norm, cmap='viridis'), ax=ax)
 cbar.ax.yaxis.set_major_formatter(formatter)  # Use custom formatter for colorbar values
 cbar.set_label("Size proportional to number of words from experiment")
 
+plt.subplots_adjust(left=0.5)
 plt.savefig('cluster_enrichment.png')
 plt.show()
 
@@ -113,24 +114,37 @@ plt.scatter(embeddings_2d[:, 0], embeddings_2d[:, 1], c=clusters, cmap='viridis'
 
 # Add cluster representative labels
 for cluster_id, cluster_word in cluster_representatives.items():
-    cluster_centroid = np.mean(embeddings_2d[clusters == cluster_id], axis=0)
+    experiment_count = enrichment_scores[cluster_id]['experiment_go_id_count']
+    if experiment_count == 0:
+        continue
+    # Check if there are any embeddings for the cluster
+    cluster_embeddings = embeddings_2d[np.array(clusters) == cluster_id]
+    if len(cluster_embeddings) == 0:
+        print(f"No embeddings for cluster {cluster_id}")
+        continue
+
+    # Calculate the centroid
+    cluster_centroid = np.mean(cluster_embeddings, axis=0)
+    print(cluster_centroid)
+
     plt.annotate(cluster_word, xy=(cluster_centroid[0], cluster_centroid[1]), xytext=(-15, 15),
                  textcoords='offset points',
-                 ha='center', va='center', fontsize=12, color='red',
-                 bbox=dict(boxstyle='round, pad=0.5', edgecolor='red', facecolor='white', alpha=0.7))
+                 ha='center', va='center', fontsize=8, color='red',
+                 bbox=dict(boxstyle='round, pad=0.1', edgecolor='red', facecolor='white', alpha=0.7))
 
 # Extract 2D embeddings for experiment_go_ids
-experiment_go_ids_2d = np.array([term_embeddings[go_id]['embedding_2d_tsne'] for go_id in experiment_go_ids if go_id in term_embeddings])  # Add this line
+valid_experiment_go_ids = [go_id for go_id in experiment_go_ids if go_id in term_embeddings]  # Add this line
+experiment_go_ids_2d = np.array([term_embeddings[go_id]['embedding_2d_tsne'] for go_id in valid_experiment_go_ids])
 
 # Plot the experiment_go_ids_2d points in red
-plt.scatter(embeddings_2d[:, 0], embeddings_2d[:, 1], c='red', marker='x')  # Change variable to experiment_go_ids_2d
+plt.scatter(experiment_go_ids_2d[:, 0], experiment_go_ids_2d[:, 1], c='red', marker='x')
 
 # Add black labels for the experiment_go_ids_2d
-for i, go_id in enumerate(experiment_go_ids):
-    if go_id in term_embeddings:  # Add this condition
-        x, y = experiment_go_ids_2d[i, :]
-        plt.annotate(go_id, xy=(x, y), xytext=(5, 2), textcoords='offset points', ha='right', va='bottom', color='black')
-
+for i, go_id in enumerate(valid_experiment_go_ids):  # Update this line
+    x, y = experiment_go_ids_2d[i, :]
+    cleaned_name = go_id_to_name[go_id]  # Get the cleaned name for the GO ID
+    plt.annotate(cleaned_name, xy=(x, y), xytext=(5, 2), textcoords='offset points', ha='right', va='bottom',
+                 color='black')
 plt.show()
 
 plt.figure(figsize=(10, 10))
@@ -140,20 +154,33 @@ sns.kdeplot(x=embeddings_2d[:, 0], y=embeddings_2d[:, 1], hue=clusters, palette=
 
 # Add cluster representative labels
 for cluster_id, cluster_word in cluster_representatives.items():
-    cluster_centroid = np.mean(embeddings_2d[clusters == cluster_id], axis=0)
+    experiment_count = enrichment_scores[cluster_id]['experiment_go_id_count']
+    if experiment_count == 0:
+        continue
+    # Check if there are any embeddings for the cluster
+    cluster_embeddings = embeddings_2d[np.array(clusters) == cluster_id]
+    if len(cluster_embeddings) == 0:
+        print(f"No embeddings for cluster {cluster_id}")
+        continue
+
+    # Calculate the centroid
+    cluster_centroid = np.mean(cluster_embeddings, axis=0)
+    print(cluster_centroid)
+
     plt.annotate(cluster_word, xy=(cluster_centroid[0], cluster_centroid[1]), xytext=(-15, 15),
                  textcoords='offset points',
-                 ha='center', va='center', fontsize=12, color='red',
-                 bbox=dict(boxstyle='round, pad=0.5', edgecolor='red', facecolor='white', alpha=0.7))
+                 ha='center', va='center', fontsize=8, color='red',
+                 bbox=dict(boxstyle='round, pad=0.1', edgecolor='red', facecolor='white', alpha=0.7))
 
 # Plot the experiment_go_ids_2d points in red
-plt.scatter(experiment_go_ids_2d[:, 0], experiment_go_ids_2d[:, 1], c='red', marker='x')  # Change variable to experiment_go_ids_2d
+plt.scatter(experiment_go_ids_2d[:, 0], experiment_go_ids_2d[:, 1], c='red', marker='x')
 
 # Add black labels for the experiment_go_ids_2d
-for i, go_id in enumerate(experiment_go_ids):
-    if go_id in term_embeddings:  # Add this condition
-        x, y = experiment_go_ids_2d[i, :]
-        plt.annotate(go_id, xy=(x, y), xytext=(5, 2), textcoords='offset points', ha='right', va='bottom', color='black')
+for i, go_id in enumerate(valid_experiment_go_ids):  # Update this line
+    x, y = experiment_go_ids_2d[i, :]
+    cleaned_name = go_id_to_name[go_id]  # Get the cleaned name for the GO ID
+    plt.annotate(cleaned_name, xy=(x, y), xytext=(5, 2), textcoords='offset points', ha='right', va='bottom',
+                 color='black')
 
 plt.savefig('cluster_visualization.png')
 plt.show()
