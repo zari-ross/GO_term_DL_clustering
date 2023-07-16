@@ -1,0 +1,12 @@
+name: DLGO
+channels:
+  - defaults
+  - conda-forge
+  - bioconda
+dependencies:
+  - pandas
+  - numpy
+  - matplotlib
+  - scikit-learn
+  - seaborn
+  - snakemake
