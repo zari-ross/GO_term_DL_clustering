@@ -1,0 +1,18 @@
+*.json
+*.npy
+*.pkl
+*.png
+*.json
+*.gz
+*.docx
+*.txt
+*.obo
+*.pb
+Wörter maskieren und prognostizieren 2D.py
+*.gaf
+*.log
+mask_go_terms.model/variables/variables.index
+mask_go_terms.model/variables/variables.data-00000-of-00001
+windows_10_cmake_Release_graphviz-install-8.0.3-win64.exe
+enrichment_scores.csv
+__pycache__/Project_GO_term_cleaning_names.cpython-38.pyc
