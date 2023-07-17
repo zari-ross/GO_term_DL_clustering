@@ -5,7 +5,16 @@ import numpy as np
 from tensorflow.keras.callbacks import CSVLogger
 import pickle
 
-with open("cleaned_abstracts.json", "r") as f:
+# Argument parsing
+parser = argparse.ArgumentParser(description='Train LSTM model')
+parser.add_argument('in_json', type=str, help='Input JSON file with cleaned abstracts')
+parser.add_argument('log', type=str, help='Output log file')
+parser.add_argument('model', type=str, help='Output model file')
+parser.add_argument('pkl', type=str, help='Output pickle file with word embeddings')
+args = parser.parse_args()
+
+
+with open(args.in_json, "r") as f:
     cleaned_abstracts = json.load(f)
 
 vectorizer = tf.keras.layers.TextVectorization(output_sequence_length=7)  # max_tokens=Inf,
@@ -54,7 +63,7 @@ model.compile(optimizer='adam', loss='sparse_categorical_crossentropy',
 lr_reduce = tf.keras.callbacks.ReduceLROnPlateau(monitor='loss', patience=500, min_lr=1e-6)
 
 # Create a CSVLogger callback and specify the filename for the log file
-csv_logger = CSVLogger('GO_term_training.log', append=True)
+csv_logger = CSVLogger(args.log, append=True)
 
 # model.fit(generator(cleaned_terms, batch_size=50), steps_per_epoch=1, epochs=3000, verbose=2,
 #           callbacks=[lr_reduce, csv_logger])
@@ -62,7 +71,7 @@ model.fit(generator(cleaned_abstracts, batch_size=50), steps_per_epoch=1, epochs
           callbacks=[lr_reduce, csv_logger])
 
 # Save the model
-model.save("mask_go_terms.model")
+model.save(args.model)
 
 # Get the weights from the Embedding layer
 embeddings = model.layers[0].get_weights()[0]
@@ -74,5 +83,5 @@ vocab = vectorizer.get_vocabulary()
 word_embeddings = {word: embeddings[idx] for idx, word in enumerate(vocab)}
 
 # Save the word_embeddings dictionary to a file
-with open('word_embeddings_mask_trained_on_abstracts.pkl', 'wb') as f:
+with open(args.pkl, 'wb') as f:
     pickle.dump(word_embeddings, f)
