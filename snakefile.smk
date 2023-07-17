@@ -18,3 +18,15 @@ rule preprocess_abstracts:
         """
         python 1_Project_GO_term_preprocess_all_part2.py {input} {output}
         """
+
+rule train_lstm_model:
+    input:
+        "cleaned_abstracts.json"
+    output:
+        log="GO_term_training.log",
+        model="mask_go_terms.model",
+        pkl="word_embeddings_mask_trained_on_abstracts.pkl"
+    shell:
+        """
+        python 2_Project_GO_term_train_LSTM_model.py {input} {output.log} {output.model} {output.pkl}
+        """
