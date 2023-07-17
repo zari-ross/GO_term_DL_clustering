@@ -4,13 +4,21 @@ from nltk.stem import WordNetLemmatizer
 import string
 import pandas as pd
 import pronto
+import argparse
 import json
+
+# Argument parsing
+parser = argparse.ArgumentParser(description='Preprocess GO terms')
+parser.add_argument('obo', type=str, help='Input OBO file')
+parser.add_argument('gaf', type=str, help='Input GAF file')
+parser.add_argument('json', type=str, help='Output JSON file')
+args = parser.parse_args()
 
 nltk.download('stopwords')
 nltk.download('wordnet')
 nltk.download('punkt')
 
-file_path = "go-basic.obo"
+file_path = args.obo
 ontology = pronto.Ontology(file_path)
 
 stop_words = set(stopwords.words('english'))
@@ -49,7 +57,7 @@ column_names = [
 ]
 
 # Load GAF file into a pandas DataFrame
-file_path = "rgd.gaf"
+file_path = args.gaf
 gaf_df = pd.read_csv(file_path, sep="\t", comment="!", names=column_names, skiprows=12)
 
 # Extract unique GO terms from the DataFrame
@@ -73,7 +81,7 @@ for term_id in unique_go_terms_list:
                     and "uncharacterized" not in name.lower():
                 all_terms[term_id] = {'name': str(name), 'cleaned_name': clean_name(name)}
 
-output_file = "rat_cleaned_terms.json"
+output_file = args.json
 
 with open(output_file, "w") as f:
     json.dump(all_terms, f)
@@ -84,11 +92,16 @@ for i, (term_id, term_info) in enumerate(all_terms.items()):
         break
     print(f"{term_id}: {term_info}")
 
+# Argument parsing
+parser = argparse.ArgumentParser(description='Preprocess abstracts')
+parser.add_argument('in_json', type=str, help='Input JSON file with abstracts')
+parser.add_argument('out_json', type=str, help='Output JSON file for cleaned abstracts')
+args = parser.parse_args()
 
-with open("abstracts.json", "r") as f:
+with open(args.in_json, "r") as f:
     abstracts = json.load(f)
 
 cleaned_abstracts = [clean_name(abstract) for abstract in abstracts]
 
-with open("cleaned_abstracts.json", "w") as f:
+with open(args.out_json, "w") as f:
     json.dump(cleaned_abstracts, f)
