@@ -1,21 +1,31 @@
+import argparse
 import tensorflow as tf
 import json
 import pickle
 from tensorflow.keras.utils import plot_model
 import matplotlib.pyplot as plt
 
-with open("rat_cleaned_terms.json", "r") as f:
+# Argument parsing
+parser = argparse.ArgumentParser(description='Compute embeddings')
+parser.add_argument('terms', type=str, help='Input JSON file with terms')
+parser.add_argument('model', type=str, help='Input model file')
+parser.add_argument('pkl', type=str, help='Input pickle file with word embeddings')
+parser.add_argument('out_json', type=str, help='Output JSON file with terms and embeddings')
+parser.add_argument('png', type=str, help='Output PNG file with model architecture')
+args = parser.parse_args()
+
+with open(args.terms, "r") as f:
     cleaned_terms = json.load(f)
 
 # Load the trained model
-trained_model = tf.keras.models.load_model("mask_go_terms.model")
+trained_model = tf.keras.models.load_model(args.model)
 
 # Generate a PNG image of the model architecture
-plot_model(trained_model, to_file='mask_model_architecture.png',
+plot_model(trained_model, to_file=args.png,
            show_shapes=True, show_dtype=True, show_layer_names=True, expand_nested=True)
 
 # Load the word_embeddings dictionary
-with open('word_embeddings_mask_trained_on_abstracts.pkl', 'rb') as f:
+with open(args.pkl, 'rb') as f:
     word_embeddings_abstracts = pickle.load(f)
 
 # Create the vectorizer using the vocabulary from the word_embeddings dictionary
@@ -46,5 +56,5 @@ for idx, (term_id, term_info) in enumerate(cleaned_terms.items()):
     term_info['embedding'] = embeddings_cleaned_terms.numpy()[idx].tolist()
 
 # Save the updated cleaned_terms dictionary to a file
-with open('rat_cleaned_terms_with_embeddings.json', 'w') as f:
+with open(args.out_json, 'w') as f:
     json.dump(cleaned_terms, f)
