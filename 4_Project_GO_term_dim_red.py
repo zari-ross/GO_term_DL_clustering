@@ -1,3 +1,4 @@
+import argparse
 import numpy as np
 import matplotlib.pyplot as plt
 from sklearn.manifold import TSNE
@@ -5,8 +6,14 @@ import umap
 import json
 import random
 
+# Argument parsing
+parser = argparse.ArgumentParser(description='Compute t-SNE embeddings')
+parser.add_argument('json', type=str, help='Input JSON file with term embeddings')
+parser.add_argument('out_json', type=str, help='Output JSON file with terms, embeddings, and t-SNE embeddings')
+args = parser.parse_args()
+
 # Load the term_embeddings dictionary from the file
-with open('rat_cleaned_terms_with_embeddings.json', 'r') as f:
+with open(args.json, 'r') as f:
     term_embeddings = json.load(f)
 
 # Print the overall number of embeddings
@@ -47,5 +54,5 @@ for i, word in enumerate(random_words):
     term_embeddings[word]['embedding_2d_tsne'] = embeddings_2d_tsne[i].tolist()
 
 # Save the updated dictionary to a file
-with open('rat_cleaned_terms_with_embeddings_and_tsne.json', 'w') as f:
+with open(args.out_json, 'w') as f:
     json.dump(term_embeddings, f)
