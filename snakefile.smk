@@ -30,3 +30,26 @@ rule train_lstm_model:
         """
         python 2_Project_GO_term_train_LSTM_model.py {input} {output.log} {output.model} {output.pkl}
         """
+		
+rule compute_embeddings:
+    input:
+        terms="rat_cleaned_terms.json",
+        model="mask_go_terms.model",
+        pkl="word_embeddings_mask_trained_on_abstracts.pkl"
+    output:
+        json="rat_cleaned_terms_with_embeddings.json",
+        png="mask_model_architecture.png"
+    shell:
+        """
+        python 3_Project_GO_term_embeddings.py {input.terms} {input.model} {input.pkl} {output.json} {output.png}
+        """
+		
+rule compute_tsne:
+    input:
+        json="rat_cleaned_terms_with_embeddings.json"
+    output:
+        json="rat_cleaned_terms_with_embeddings_and_tsne.json"
+    shell:
+        """
+        python 4_Project_GO_term_tsne_embeddings.py {input.json} {output.json}
+        """
