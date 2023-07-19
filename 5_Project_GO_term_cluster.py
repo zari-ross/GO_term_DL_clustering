@@ -1,3 +1,5 @@
+
+import argparse
 import numpy as np
 import matplotlib.pyplot as plt
 from sklearn.manifold import TSNE
@@ -7,8 +9,15 @@ import json
 from sklearn.cluster import DBSCAN
 from sklearn.cluster import KMeans
 
+# Add an argument parser
+parser = argparse.ArgumentParser(description='Run clustering on embeddings')
+
+parser.add_argument('input', type=str, help='Input JSON file')
+parser.add_argument('output', type=str, help='Output JSON file')
+args = parser.parse_args()
+
 # Load the term_embeddings dictionary from the file
-with open('rat_cleaned_terms_with_embeddings_and_tsne.json', 'r') as f:
+with open(args.input, 'r') as f:
     term_embeddings = json.load(f)
 
 # Extract the t-SNE embeddings
@@ -130,5 +139,5 @@ for cluster_id, cluster_word in cluster_representatives.items():
 # print(cluster_representatives)
 
 # Save the updated term_embeddings dictionary to a file
-with open('rat_cleaned_terms_with_embeddings_clusters_and_tsne.json', 'w') as f:
+with open(args.output, 'w') as f:
     json.dump(term_embeddings, f)
