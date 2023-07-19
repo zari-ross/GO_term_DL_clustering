@@ -1,8 +1,8 @@
+import argparse
 import json
 import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
-
 # from Project.Step5_Project_GO_term_cluster import num_clusters
 num_clusters = 40
 from collections import Counter
@@ -10,6 +10,15 @@ import matplotlib.cm as cm
 import seaborn as sns
 from matplotlib.ticker import FuncFormatter
 
+# Argument parsing
+parser = argparse.ArgumentParser(description='Visualize clusters and calculate enrichment scores')
+parser.add_argument('input', type=str, help='Path to the input JSON file')
+parser.add_argument('terms', type=str, help='Path to the GO terms text file')
+parser.add_argument('num_clusters', type=int, help='Number of clusters')
+parser.add_argument('enrichment_scores', type=str, help='Path to the output CSV file for enrichment scores')
+parser.add_argument('cluster_enrichment_plot', type=str, help='Path to the output PNG file for cluster enrichment plot')
+parser.add_argument('cluster_visualization_plot', type=str, help='Path to the output PNG file for cluster visualization plot')
+args = parser.parse_args()
 
 def custom_formatter(x, pos):
     return f'{x / 100}'
@@ -18,7 +27,7 @@ def custom_formatter(x, pos):
 formatter = FuncFormatter(custom_formatter)
 
 # Load the term_embeddings dictionary from the file
-with open('rat_cleaned_terms_with_embeddings_clusters_and_tsne.json', 'r') as f:
+with open(args.json, 'r') as f:
     term_embeddings = json.load(f)
 
 # Extract the t-SNE embeddings
@@ -37,7 +46,7 @@ for term_id, term_data in term_embeddings.items():
         cluster_representatives[cluster_id] = term_data['representative']
 
 
-filename = "GO_terms_Example1.txt"
+filename = args.terms
 
 # Read the file into a DataFrame
 df = pd.read_csv(filename, sep='\s+', engine='python')
@@ -72,7 +81,7 @@ for cluster_id in range(num_clusters):
 enrichment_scores_df = pd.DataFrame(enrichment_scores).T.reset_index().rename(columns={'index': 'cluster_id'})
 
 # Save the DataFrame to a CSV file
-enrichment_scores_df.to_csv('enrichment_scores.csv', index=False)
+enrichment_scores_df.to_csv(args.enrichment_scores, index=False)
 
 # Plot the enrichment scores
 fig, ax = plt.subplots(figsize=(12, 8))
@@ -105,7 +114,7 @@ cbar.ax.yaxis.set_major_formatter(formatter)  # Use custom formatter for colorba
 cbar.set_label("Size proportional to number of words from experiment")
 
 plt.subplots_adjust(left=0.5)
-plt.savefig('cluster_enrichment.png')
+plt.savefig(args.cluster_enrichment_plot)
 plt.show()
 
 # Plot the 2D embeddings for all words
@@ -182,5 +191,5 @@ for i, go_id in enumerate(valid_experiment_go_ids):  # Update this line
     plt.annotate(cleaned_name, xy=(x, y), xytext=(5, 2), textcoords='offset points', ha='right', va='bottom',
                  color='black')
 
-plt.savefig('cluster_visualization.png')
+plt.savefig(args.cluster_visualization_plot)
 plt.show()
